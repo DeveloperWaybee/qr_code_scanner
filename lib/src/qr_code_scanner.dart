@@ -197,7 +197,13 @@ class QRViewController {
             final format = BarcodeTypesExtension.fromString(rawType);
             if (format != BarcodeFormat.unknown) {
               final barcode = Barcode(code, format, rawBytes);
-              _scanUpdateController.sink.add(barcode);
+              if (WidgetsBinding.instance.hasScheduledFrame) {
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  _scanUpdateController.sink.add(barcode);
+                });
+              } else {
+                _scanUpdateController.sink.add(barcode);
+              }
             } else {
               throw Exception('Unexpected barcode type $rawType');
             }
